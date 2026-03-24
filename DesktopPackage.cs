@@ -1,9 +1,7 @@
 using ArisenKernel.Packages;
 using ArisenKernel.Services;
 using ArisenKernel.Contracts;
-using ArisenEngine.Core.ECS;
 using ArisenEngine.Core.Automation;
-using ArisenEngine.Rendering;
 
 namespace ArisenEngine.Platform;
 
@@ -14,9 +12,9 @@ public class DesktopWindowProvider : IWindowProvider
     public event System.EventHandler<(int Width, int Height)> OnWindowResized;
     public void Close() {}
 
-    public WindowProcessor CreateWindowProcessor(IRenderSurface renderSurface)
+    public WindowProcessor CreateWindowProcessor()
     {
-        return new ArisenEngine.Platform.Desktop.WindowsProcHandler(renderSurface);
+        return new ArisenEngine.Platform.Desktop.WindowsProcHandler();
     }
 }
 
