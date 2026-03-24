@@ -17,5 +17,13 @@
   },
   "subsystems": [
     { "type": "ArisenEngine.Platform.PlatformSubsystem" }
-  ]
+  ],
+  "services": {
+    "provides": [
+      {
+        "interface": "ArisenKernel.Contracts.IWindowProvider",
+        "priority": 100
+      }
+    ]
+  }
 }

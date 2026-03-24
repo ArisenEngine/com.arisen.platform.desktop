@@ -1,9 +1,7 @@
 using System.Runtime.InteropServices;
 using System;
 using ArisenKernel.Contracts;
-using ArisenEngine.Core.ECS;
 using ArisenEngine.Core.Automation;
-using ArisenEngine.Rendering;
 
 namespace ArisenEngine.Platform.Desktop;
 
@@ -15,7 +13,7 @@ internal class WindowsProcHandler : WindowProcessor
 
     private ResizeCallback m_ResizeCallback;
 
-    internal WindowsProcHandler(IRenderSurface renderSurface) : base(renderSurface)
+    internal WindowsProcHandler() : base()
     {
         m_WndProc = WindowProc;
         m_ResizeCallback = OnResizeDone;
@@ -54,14 +52,13 @@ internal class WindowsProcHandler : WindowProcessor
         return IntPtr.Zero;
     }
 
-    protected override void OnResizing() => m_RenderSurface.OnResizing();
-    protected override void OnResized() => m_RenderSurface.OnResized();
-    protected override void OnCreate() => m_RenderSurface.OnCreate();
+    protected override void OnResizing() => Console.WriteLine(" Windows Proc : OnResizing ");
+    protected override void OnResized() => Console.WriteLine(" Windows Proc : OnResized ");
+    protected override void OnCreate() => Console.WriteLine(" Windows Proc : OnCreate ");
 
     protected override void OnDestroy()
     {
         Console.WriteLine(" Windows Proc : OnDestroy ");
-        m_RenderSurface.OnDestroy();
     }
 
     protected override void OnClose()
