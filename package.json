@@ -1,34 +1,34 @@
 {
-    "subsystems":  [
-                       {
-                           "type":  "ArisenEngine.Platform.PlatformSubsystem"
-                       }
-                   ],
-    "engineVersion":  "0.1.0",
-    "id":  "com.arisen.platform.desktop",
-    "tags":  [
-                 "platform",
-                 "desktop",
-                 "windows"
-             ],
-    "version":  "1.0.0",
-    "description":  "Desktop windowing and message loop provider",
-    "author":  "Arisen Team",
-    "entry":  {
-                  "class":  "ArisenEngine.Platform.DesktopPackage",
-                  "assembly":  "Com.Arisen.Platform.Desktop.dll"
-              },
-    "name":  "Arisen Desktop Platform",
-    "dependencies":  {
-                         "com.arisen.core.native":  "1.0.0",
-                         "com.arisen.core":  "1.0.0"
-                     },
-    "services":  {
-                     "provides":  [
-                                      {
-                                          "interface":  "ArisenKernel.Contracts.IWindowProvider",
-                                          "priority":  100
-                                      }
-                                  ]
-                 }
+    "subsystems": [
+        {
+            "type": "ArisenEngine.Platform.PlatformSubsystem"
+        }
+    ],
+    "engineVersion": "0.1.0",
+    "id": "com.arisen.platform.desktop",
+    "tags": [
+        "platform",
+        "desktop",
+        "windows"
+    ],
+    "version": "1.0.0",
+    "description": "Desktop windowing and message loop provider",
+    "author": "Arisen Team",
+    "entry": {
+        "class": "ArisenEngine.Platform.DesktopPackage",
+        "assembly": "Com.Arisen.Platform.Desktop.dll"
+    },
+    "name": "Arisen Desktop Platform",
+    "dependencies": {
+        "com.arisen.core.native": "1.0.0",
+        "com.arisen.core": "1.0.0"
+    },
+    "services": {
+        "provides": [
+            {
+                "interface": "ArisenKernel.Contracts.IWindowProvider",
+                "priority": 100
+            }
+        ]
+    }
 }
