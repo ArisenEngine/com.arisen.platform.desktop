@@ -1,6 +1,7 @@
 using ArisenKernel.Packages;
 using ArisenKernel.Services;
 using ArisenKernel.Contracts;
+using ArisenKernel.Diagnostics;
 using ArisenEngine.Core.Automation;
 
 namespace ArisenEngine.Platform;
@@ -23,12 +24,12 @@ public class DesktopPackage : IPackageEntry
     public void OnLoad(IServiceRegistry registry)
     {
         registry.RegisterService<IWindowProvider>(new DesktopWindowProvider());
-        System.Console.WriteLine("[DesktopPackage] Loaded Desktop Platform Integration");
+        KernelLog.Info("[DesktopPackage] Loaded Desktop Platform Integration");
     }
 
     public void OnUnload(IServiceRegistry registry)
     {
-        System.Console.WriteLine("[DesktopPackage] Unloaded Desktop Platform Integration");
+        KernelLog.Info("[DesktopPackage] Unloaded Desktop Platform Integration");
     }
 }
 

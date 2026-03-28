@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using System;
 using ArisenKernel.Contracts;
+using ArisenKernel.Diagnostics;
 using ArisenEngine.Core.Automation;
 
 namespace ArisenEngine.Platform.Desktop;
@@ -23,7 +24,7 @@ internal class WindowsProcHandler : WindowProcessor
 
     private void OnResizeDone(IntPtr hwnd, int width, int height)
     {
-        // Console.WriteLine($"OnResizeDone hwnd:{hwnd}, width:{width}, height:{height}");
+        // KernelLog.InfoFormat("OnResizeDone hwnd:{0}, width:{1}, height:{2}", hwnd, width, height);
     }
 
     private IntPtr WindowProc(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam)
@@ -52,17 +53,17 @@ internal class WindowsProcHandler : WindowProcessor
         return IntPtr.Zero;
     }
 
-    protected override void OnResizing() => Console.WriteLine(" Windows Proc : OnResizing ");
-    protected override void OnResized() => Console.WriteLine(" Windows Proc : OnResized ");
-    protected override void OnCreate() => Console.WriteLine(" Windows Proc : OnCreate ");
+    protected override void OnResizing() => KernelLog.Info(" Windows Proc : OnResizing ");
+    protected override void OnResized() => KernelLog.Info(" Windows Proc : OnResized ");
+    protected override void OnCreate() => KernelLog.Info(" Windows Proc : OnCreate ");
 
     protected override void OnDestroy()
     {
-        Console.WriteLine(" Windows Proc : OnDestroy ");
+        KernelLog.Info(" Windows Proc : OnDestroy ");
     }
 
     protected override void OnClose()
     {
-        Console.WriteLine(" Windows Proc : OnClose ");
+        KernelLog.Info(" Windows Proc : OnClose ");
     }
 }
