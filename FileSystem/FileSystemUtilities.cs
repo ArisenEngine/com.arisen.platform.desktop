@@ -1,4 +1,5 @@
-﻿using System.Text;
+using System.Text;
+using ArisenKernel.Diagnostics;
 
 namespace ArisenEngine.FileSystem
 {
@@ -90,7 +91,7 @@ namespace ArisenEngine.FileSystem
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                KernelLog.ErrorFormat("FileSystemUtilities.AppendTextToFile Error: {0}", e.Message);
                 throw;
             }
             finally
@@ -116,7 +117,7 @@ namespace ArisenEngine.FileSystem
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                KernelLog.ErrorFormat("FileSystemUtilities.GetFolderSize Error: {0}", e.Message);
                 throw;
             }
 
