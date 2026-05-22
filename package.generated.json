@@ -1,0 +1,6 @@
+{
+  "entry": {
+    "assembly": "Com.Arisen.Platform.Desktop.dll",
+    "class": "ArisenEngine.Platform.DesktopPackage"
+  }
+}
