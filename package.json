@@ -16,13 +16,6 @@
       }
     ]
   },
-  "subsystems": [
-    {
-      "class": "",
-      "phase": "Init",
-      "priority": 100
-    }
-  ],
   "dependencies": {
     "com.arisen.core.native": "1.0.0",
     "com.arisen.core": "1.0.0"
