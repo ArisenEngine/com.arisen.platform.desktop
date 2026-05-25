@@ -2,6 +2,7 @@
   "id": "com.arisen.platform.desktop",
   "name": "Arisen Desktop Platform",
   "version": "1.0.0",
+  "layer": "foundation",
   "author": "Arisen Team",
   "description": "Desktop windowing and message loop provider",
   "entry": {
