@@ -166,6 +166,7 @@ public sealed class DesktopWindowProvider : IWindowProvider, IDisposable
 
         return new WindowSurfaceInfo(
             m_WindowHandle,
+            m_WindowId,
             m_Width,
             m_Height,
             1.0f,
