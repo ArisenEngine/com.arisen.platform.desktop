@@ -13,18 +13,35 @@ internal class WindowsProcHandler : WindowProcessor
     private delegate void ResizeCallback(IntPtr hwnd, int width, int height);
 
     private ResizeCallback m_ResizeCallback;
+    private ResizeCallback m_ResizingCallback;
+    private readonly Action<int, int>? m_OnResized;
+    private readonly Action<int, int>? m_OnResizing;
+    private readonly Action? m_OnCloseRequested;
 
-    internal WindowsProcHandler() : base()
+    internal WindowsProcHandler(
+        Action<int, int>? onResized = null,
+        Action<int, int>? onResizing = null,
+        Action? onCloseRequested = null) : base()
     {
+        m_OnResized = onResized;
+        m_OnResizing = onResizing;
+        m_OnCloseRequested = onCloseRequested;
         m_WndProc = WindowProc;
         m_ResizeCallback = OnResizeDone;
+        m_ResizingCallback = OnResizingDone;
         m_ProcPtr = Marshal.GetFunctionPointerForDelegate(m_WndProc);
         m_ResizeCallbackPtr = Marshal.GetFunctionPointerForDelegate(m_ResizeCallback);
+        m_ResizingCallbackPtr = Marshal.GetFunctionPointerForDelegate(m_ResizingCallback);
     }
 
     private void OnResizeDone(IntPtr hwnd, int width, int height)
     {
-        // KernelLog.InfoFormat("OnResizeDone hwnd:{0}, width:{1}, height:{2}", hwnd, width, height);
+        m_OnResized?.Invoke(width, height);
+    }
+
+    private void OnResizingDone(IntPtr hwnd, int width, int height)
+    {
+        m_OnResizing?.Invoke(width, height);
     }
 
     private IntPtr WindowProc(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam)
@@ -60,10 +77,12 @@ internal class WindowsProcHandler : WindowProcessor
     protected override void OnDestroy()
     {
         KernelLog.Info(" Windows Proc : OnDestroy ");
+        m_OnCloseRequested?.Invoke();
     }
 
     protected override void OnClose()
     {
         KernelLog.Info(" Windows Proc : OnClose ");
+        m_OnCloseRequested?.Invoke();
     }
 }

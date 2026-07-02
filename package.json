@@ -17,6 +17,13 @@
       }
     ]
   },
+  "subsystems": [
+    {
+      "class": "ArisenEngine.Platform.PlatformSubsystem",
+      "phase": "PreInit",
+      "priority": 0
+    }
+  ],
   "dependencies": {
     "com.arisen.core.native": "1.0.0",
     "com.arisen.core": "1.0.0"
