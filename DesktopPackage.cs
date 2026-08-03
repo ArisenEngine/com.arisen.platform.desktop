@@ -22,7 +22,7 @@ public sealed class DesktopWindowProvider : IWindowProvider, IDisposable
 
     public bool IsCloseRequested => m_CloseRequested;
 
-    public event System.EventHandler<(int Width, int Height)> OnWindowResized;
+    public event System.EventHandler<(int Width, int Height)>? OnWindowResized;
     public event Action<WindowResizeInfo>? WindowResized;
     public event Action? CloseRequested;
 
