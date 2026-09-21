@@ -18,6 +18,13 @@ internal class WindowsProcHandler : WindowProcessor
     private readonly Action<int, int>? m_OnResizing;
     private readonly Action? m_OnCloseRequested;
 
+    /// <summary>
+    /// Native HAL protocol: the window procedure result only falls through to DefWindowProc when it
+    /// equals -1. Any other value marks the message as handled and removes its default behaviour,
+    /// so every message this processor does not consume explicitly must be reported as unhandled.
+    /// </summary>
+    private static readonly IntPtr UnhandledMessage = new(-1);
+
     internal WindowsProcHandler(
         Action<int, int>? onResized = null,
         Action<int, int>? onResizing = null,
@@ -48,10 +55,18 @@ internal class WindowsProcHandler : WindowProcessor
     {
         switch (msg)
         {
+            // Both close routes are consumed instead of letting DefWindowProc destroy the window:
+            // render surfaces bound to this HWND must stay valid until the platform subsystem
+            // closes the window during engine shutdown.
+            case Win32Native.WM_CLOSE:
+                OnClose();
+                return IntPtr.Zero;
+
             case Win32Native.WM_SYSCOMMAND:
                 if ((wParam.ToInt32() & 0xFFF0) == Win32Native.SC_CLOSE)
                 {
                     OnClose();
+                    return IntPtr.Zero;
                 }
 
                 break;
@@ -64,10 +79,10 @@ internal class WindowsProcHandler : WindowProcessor
             case Win32Native.WM_DESTROY:
                 Win32Native.PostQuitMessage(0);
                 OnDestroy();
-                break;
+                return IntPtr.Zero;
         }
 
-        return IntPtr.Zero;
+        return UnhandledMessage;
     }
 
     protected override void OnResizing() => KernelLog.Info(" Windows Proc : OnResizing ");
