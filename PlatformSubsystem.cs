@@ -2,6 +2,7 @@
 using ArisenKernel.Contracts;
 using ArisenKernel.Diagnostics;
 using ArisenKernel.Lifecycle;
+using ArisenEngine.Platform.Desktop;
 
 namespace ArisenEngine.Platform;
 
@@ -11,6 +12,7 @@ public class PlatformSubsystem : ITickableSubsystem
     public EnginePhase InitPhase => EnginePhase.PreInit;
 
     private IWindowProvider? m_WindowProvider;
+    private DesktopInputProvider? m_InputProvider;
     private bool m_PumpEvents;
 
     public void Initialize()
@@ -38,6 +40,18 @@ public class PlatformSubsystem : ITickableSubsystem
             config?.WindowWidth ?? 1280,
             config?.WindowHeight ?? 720));
 
+        if (EngineKernel.Instance.Services.TryGetService<IInputProvider>(out var inputProvider))
+        {
+            // Pumping the device is a platform-package concern; consumers only see IInputProvider.
+            m_InputProvider = inputProvider as DesktopInputProvider;
+        }
+
+        if (m_InputProvider == null)
+        {
+            KernelLog.Warning(
+                "[PlatformSubsystem] No IInputProvider registered; camera input is unavailable.");
+        }
+
         KernelLog.InfoFormat(
             "[PlatformSubsystem] Standalone window ready. Handle=0x{0:X}, Size={1}x{2}, DpiScale={3:F2}",
             windowInfo.NativeHandle.ToInt64(),
@@ -49,22 +63,31 @@ public class PlatformSubsystem : ITickableSubsystem
 
     public void Tick(float deltaTime)
     {
-        if (m_PumpEvents && m_WindowProvider != null)
+        if (!m_PumpEvents || m_WindowProvider == null)
         {
-            if (!m_WindowProvider.PumpEvents())
-            {
-                EngineKernel.Instance.RequestShutdown();
-            }
+            return;
         }
+
+        if (!m_WindowProvider.PumpEvents())
+        {
+            // Never leave the pointer clipped or hidden behind a closing window.
+            m_InputProvider?.SetCursorCapture(false);
+            EngineKernel.Instance.RequestShutdown();
+            return;
+        }
+
+        m_InputProvider?.Pump();
     }
 
     public void Shutdown()
     {
         if (m_PumpEvents)
         {
+            m_InputProvider?.SetCursorCapture(false);
             m_WindowProvider?.Close();
         }
 
+        m_InputProvider = null;
         m_WindowProvider = null;
         m_PumpEvents = false;
     }

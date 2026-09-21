@@ -84,6 +84,43 @@ public static class Win32Native
     [DllImport("user32.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
     public static extern short GetKeyState(int keyCode);
 
+    [DllImport("user32.dll", EntryPoint = "GetAsyncKeyState")]
+    public static extern short GetAsyncKeyState(int keyCode);
+
+    [DllImport("user32.dll", EntryPoint = "GetForegroundWindow")]
+    public static extern IntPtr GetForegroundWindow();
+
+    [DllImport("user32.dll", EntryPoint = "GetCursorPos")]
+    public static extern bool GetCursorPos(out POINT lpPoint);
+
+    [DllImport("user32.dll", EntryPoint = "SetCursorPos")]
+    public static extern bool SetCursorPos(int x, int y);
+
+    [DllImport("user32.dll", EntryPoint = "GetClientRect")]
+    public static extern bool GetClientRect(IntPtr hWnd, out RECT lpRect);
+
+    [DllImport("user32.dll", EntryPoint = "ClientToScreen")]
+    public static extern bool ClientToScreen(IntPtr hWnd, ref POINT lpPoint);
+
+    [DllImport("user32.dll", EntryPoint = "ClipCursor")]
+    public static extern bool ClipCursor(ref RECT lpRect);
+
+    [DllImport("user32.dll", EntryPoint = "ClipCursor")]
+    private static extern bool ClipCursorPtr(IntPtr lpRect);
+
+    [DllImport("user32.dll", EntryPoint = "ShowCursor")]
+    private static extern int ShowCursorCore(bool bShow);
+
+    public static bool ReleaseCursorClip()
+    {
+        return ClipCursorPtr(IntPtr.Zero);
+    }
+
+    public static void SetCursorVisible(bool visible)
+    {
+        ShowCursorCore(visible);
+    }
+
     public static bool ShowWindow(IntPtr hWnd, bool windowVisible)
     {
         return ShowWindow(hWnd, windowVisible ? 1 : 0);
@@ -144,6 +181,7 @@ public static class Win32Native
 
     public const int GCS_COMPSTR = 0x0008;
     public const int WM_QUIT = 0x0012;
+    public const int WM_CLOSE = 0x0010;
     public const int WM_DESTROY = 0x0002;
     public const int WM_SIZE = 0x0005;
     public const int WM_SYSCOMMAND = 0x0112;

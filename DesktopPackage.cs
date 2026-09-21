@@ -3,6 +3,7 @@ using ArisenKernel.Services;
 using ArisenKernel.Contracts;
 using ArisenKernel.Diagnostics;
 using ArisenEngine.Core.Automation;
+using ArisenEngine.Platform.Desktop;
 using NativeHAL = Arisen.Native.HAL;
 
 namespace ArisenEngine.Platform;
@@ -21,6 +22,12 @@ public sealed class DesktopWindowProvider : IWindowProvider, IDisposable
     private bool m_Disposed;
 
     public bool IsCloseRequested => m_CloseRequested;
+
+    /// <summary>
+    /// Native window handle without refreshing window/resize state. Zero until the main window
+    /// exists, and zero for the whole process in editor builds where the host owns the window.
+    /// </summary>
+    public IntPtr CurrentWindowHandle => m_WindowHandle;
 
     public event System.EventHandler<(int Width, int Height)>? OnWindowResized;
     public event Action<WindowResizeInfo>? WindowResized;
@@ -221,16 +228,25 @@ public sealed class DesktopWindowProvider : IWindowProvider, IDisposable
 public class DesktopPackage : IPackageEntry
 {
     private DesktopWindowProvider? m_WindowProvider;
+    private DesktopInputProvider? m_InputProvider;
 
     public void OnLoad(IServiceRegistry registry)
     {
         m_WindowProvider = new DesktopWindowProvider();
         registry.RegisterService<IWindowProvider>(m_WindowProvider);
+
+        // The provider stays idle until a native window exists, which is exactly the standalone
+        // runtime case. Editor builds keep it registered but windowless: the Avalonia host owns
+        // native input there and reports it through the editor viewport instead.
+        m_InputProvider = new DesktopInputProvider(m_WindowProvider);
+        registry.RegisterService<IInputProvider>(m_InputProvider);
         KernelLog.Info("[DesktopPackage] Loaded Desktop Platform Integration");
     }
 
     public void OnUnload(IServiceRegistry registry)
     {
+        m_InputProvider?.Dispose();
+        m_InputProvider = null;
         m_WindowProvider?.Dispose();
         m_WindowProvider = null;
         KernelLog.Info("[DesktopPackage] Unloaded Desktop Platform Integration");

@@ -17,6 +17,10 @@
       {
         "interface": "ArisenKernel.Contracts.IWindowProvider",
         "priority": 100
+      },
+      {
+        "interface": "ArisenKernel.Contracts.IInputProvider",
+        "priority": 100
       }
     ]
   },
