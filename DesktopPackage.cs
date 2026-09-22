@@ -18,6 +18,7 @@ public sealed class DesktopWindowProvider : IWindowProvider, IDisposable
     private IntPtr m_WindowHandle;
     private int m_Width;
     private int m_Height;
+    private bool m_WindowVisible;
     private bool m_CloseRequested;
     private bool m_Disposed;
 
@@ -46,6 +47,10 @@ public sealed class DesktopWindowProvider : IWindowProvider, IDisposable
 
             m_Width = Math.Max(1, createInfo.Width);
             m_Height = Math.Max(1, createInfo.Height);
+            // A hidden runtime window stays on the desktop but is never composited, so the
+            // first frames the engine submits before the startup world owns content cannot
+            // flash on screen. The provider reveals it through SetMainWindowVisible.
+            var visible = createInfo.Visible;
             m_Processor = CreateWindowProcessor(
                 OnNativeWindowResized,
                 OnNativeWindowResizing,
@@ -57,7 +62,8 @@ public sealed class DesktopWindowProvider : IWindowProvider, IDisposable
                 m_Processor.ResizeCallbackPtr,
                 m_Processor.ResizingCallbackPtr,
                 m_Width,
-                m_Height);
+                m_Height,
+                visible ? 1u : 0u);
 
             m_WindowHandle = NativeHAL.RenderWindowAPI.GetWindowHandle(m_WindowId);
             if (m_WindowHandle == IntPtr.Zero)
@@ -66,17 +72,40 @@ public sealed class DesktopWindowProvider : IWindowProvider, IDisposable
             }
 
             m_HasWindow = true;
+            m_WindowVisible = visible;
             m_MessageHandler = System.OperatingSystem.IsWindows()
                 ? new Desktop.WindowsMessageHandle()
                 : null;
             var info = RefreshWindowInfo();
             KernelLog.InfoFormat(
-                "[DesktopWindowProvider] Created main window. Handle=0x{0:X}, Size={1}x{2}, Surface={3}",
+                "[DesktopWindowProvider] Created main window. Handle=0x{0:X}, Size={1}x{2}, Surface={3}, Visible={4}",
                 info.NativeHandle.ToInt64(),
                 info.Width,
                 info.Height,
-                info.SurfaceKind);
+                info.SurfaceKind,
+                m_WindowVisible);
             return info;
+        }
+    }
+
+    /// <summary>
+    /// Reveals or hides the main window. Requests that arrive before the window exists are
+    /// ignored; creation visibility is owned by <see cref="EnsureMainWindow"/>.
+    /// </summary>
+    public void SetMainWindowVisible(bool visible)
+    {
+        lock (m_Lock)
+        {
+            ThrowIfDisposed();
+
+            IntPtr handle = m_WindowHandle;
+            if (!m_HasWindow || handle == IntPtr.Zero || m_WindowVisible == visible)
+            {
+                return;
+            }
+
+            Win32Native.ShowWindow(handle, visible);
+            m_WindowVisible = visible;
         }
     }
 
@@ -128,6 +157,7 @@ public sealed class DesktopWindowProvider : IWindowProvider, IDisposable
             }
 
             m_WindowHandle = IntPtr.Zero;
+            m_WindowVisible = false;
             m_MessageHandler = null;
             m_Processor = null;
             m_CloseRequested = true;

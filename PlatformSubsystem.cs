@@ -35,10 +35,16 @@ public class PlatformSubsystem : ITickableSubsystem
         var title = string.IsNullOrWhiteSpace(config?.ProjectName)
             ? "Arisen Runtime"
             : config.ProjectName;
+        // A standalone runtime always creates its main window hidden and lets the render
+        // subsystem reveal it with IWindowProvider.SetMainWindowVisible once a frame that owns the
+        // startup world's content has been presented, so the pipeline's empty-content placeholder
+        // never flashes on screen. The render subsystem owns that policy, including the case of a
+        // bounded smoke host, which never composites and therefore stays hidden for the whole run.
         var windowInfo = m_WindowProvider.EnsureMainWindow(new WindowCreateInfo(
             title,
             config?.WindowWidth ?? 1280,
-            config?.WindowHeight ?? 720));
+            config?.WindowHeight ?? 720,
+            Visible: false));
 
         if (EngineKernel.Instance.Services.TryGetService<IInputProvider>(out var inputProvider))
         {
