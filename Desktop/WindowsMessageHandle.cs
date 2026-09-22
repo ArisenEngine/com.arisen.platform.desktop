@@ -30,4 +30,9 @@ internal sealed class WindowsMessageHandle : MessageHandler
 
         return isAlive;
     }
+
+    public override void WaitForMessage()
+    {
+        Win32Native.WaitMessage();
+    }
 }

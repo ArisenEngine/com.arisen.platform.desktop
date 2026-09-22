@@ -129,6 +129,9 @@ public static class Win32Native
     [DllImport("user32.dll", EntryPoint = "ShowWindow", CharSet = CharSet.Unicode)]
     private static extern bool ShowWindow(IntPtr hWnd, int mCmdShow);
 
+    [DllImport("user32.dll", EntryPoint = "IsIconic", CharSet = CharSet.Unicode)]
+    public static extern bool IsIconic(IntPtr hWnd);
+
     [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr", CharSet = CharSet.Unicode)]
     private static extern IntPtr SetWindowLongPtr64(IntPtr hwnd, WindowLongType index, IntPtr wndProc);
 
@@ -154,6 +157,15 @@ public static class Win32Native
 
     [DllImport("user32.dll", EntryPoint = "GetMessage")]
     public static extern int GetMessage(out NativeMessage lpMsg, IntPtr hWnd, int wMsgFilterMin, int wMsgFilterMax);
+
+    /// <summary>
+    /// Blocks the calling thread until its message queue has a message; the earliest point the
+    /// state of a window owned by this thread can change. A frame loop parks on this while its
+    /// window cannot composite presented frames, so the park ends on the message that changes
+    /// that state (restore, close) instead of on a polling interval.
+    /// </summary>
+    [DllImport("user32.dll", EntryPoint = "WaitMessage", CharSet = CharSet.Unicode)]
+    public static extern bool WaitMessage();
 
     [DllImport("user32.dll", EntryPoint = "TranslateMessage", CharSet = CharSet.Unicode)]
     public static extern int TranslateMessage(ref NativeMessage lpMsg);

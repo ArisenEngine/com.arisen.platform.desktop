@@ -30,6 +30,21 @@ public sealed class DesktopWindowProvider : IWindowProvider, IDisposable
     /// </summary>
     public IntPtr CurrentWindowHandle => m_WindowHandle;
 
+    /// <summary>
+    /// True while the main window is minimized. The HAL keeps the window's authored size, but the
+    /// native surface of a minimized window reports a zero extent, so no swapchain can present
+    /// into it and every frame produced in that state is invisible. The runtime parks its frame
+    /// loop on this state instead of producing them; see <see cref="PlatformSubsystem"/>.
+    /// </summary>
+    public bool IsMainWindowMinimized
+    {
+        get
+        {
+            IntPtr handle = m_WindowHandle;
+            return m_HasWindow && handle != IntPtr.Zero && Win32Native.IsIconic(handle);
+        }
+    }
+
     public event System.EventHandler<(int Width, int Height)>? OnWindowResized;
     public event Action<WindowResizeInfo>? WindowResized;
     public event Action? CloseRequested;
@@ -143,6 +158,21 @@ public sealed class DesktopWindowProvider : IWindowProvider, IDisposable
         }
 
         return !m_CloseRequested;
+    }
+
+    /// <summary>
+    /// Blocks until the window has a message to process. The runtime parks its frame loop here
+    /// while the main window is minimized, so the park ends on the message that changes the
+    /// window state instead of on a polling interval.
+    /// </summary>
+    public void WaitForWindowMessage()
+    {
+        if (!m_HasWindow || m_CloseRequested)
+        {
+            return;
+        }
+
+        m_MessageHandler?.WaitForMessage();
     }
 
     public void Close()
